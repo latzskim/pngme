@@ -47,7 +47,10 @@ impl TryFrom<&[u8]> for Png {
 
 impl Display for Png {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.chunks())
+        for chunk in &self.chunks {
+            writeln!(f, "{}", chunk)?;
+        }
+        Ok(())
     }
 }
 
@@ -58,7 +61,7 @@ impl Png {
         Png { chunks }
     }
 
-    fn append_chunk(&mut self, chunk: Chunk) {
+    pub fn append_chunk(&mut self, chunk: Chunk) {
         self.chunks.push(chunk);
     }
 
@@ -82,7 +85,7 @@ impl Png {
         self.chunks.as_ref()
     }
 
-    fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
         let Ok(given_chunk_type) = ChunkType::from_str(chunk_type) else {
             return None;
         };
@@ -92,7 +95,7 @@ impl Png {
             .find(|chunk| chunk.chunk_type() == &given_chunk_type)
     }
 
-    fn as_bytes(&self) -> Vec<u8> {
+    pub fn as_bytes(&self) -> Vec<u8> {
         let all_chunks_bytes: Vec<u8> = self
             .chunks()
             .iter()

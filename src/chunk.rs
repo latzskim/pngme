@@ -105,9 +105,9 @@ impl Display for Chunk {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "chunk_type: {}, chunk_data: {}, crc: {}",
+            "chunk_type: {}, chunk_data: {:?}, crc: {}",
             self.chunk_type,
-            self.data_as_string().unwrap(),
+            self.chunk_data,
             self.crc_iso
         )
     }
