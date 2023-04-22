@@ -1,10 +1,10 @@
 use clap::{Arg, Command};
-use commands::{encode, decode};
+use commands::{decode, encode, validate};
 
-mod chunk;
-mod chunk_type;
-mod commands;
-mod png;
+pub mod chunk;
+pub mod chunk_type;
+pub mod commands;
+pub mod png;
 
 fn main() {
     let matches = Command::new("pngme")
@@ -30,6 +30,13 @@ fn main() {
                         .help("valid chunk type e.g ruSt"),
                 ),
         )
+        .subcommand(
+            Command::new("validate").about("validate chunk type").arg(
+                Arg::new("type")
+                    .required(true)
+                    .help("chunk type to check its validity"),
+            ),
+        )
         .get_matches();
 
     match matches.subcommand() {
@@ -50,7 +57,7 @@ fn main() {
                 .unwrap_or("");
 
             if let Err(e) = encode(path, chunk_type, chunk_data) {
-                panic!("failed to encode file {}: {}", path, e);
+                println!("failed to encode file {}: {}", path, e);
             }
         }
         Some(("decode", encode_matches)) => {
@@ -69,7 +76,18 @@ fn main() {
                     "decoded message from chunk {}: {}",
                     chunk_type, decoded_message
                 ),
-                Err(e) => panic!("failed to decode file {}: {}", path, e),
+                Err(e) => println!("failed to decode file {}: {}", path, e),
+            }
+        }
+        Some(("validate", validate_matches)) => {
+            let chunk_type = validate_matches
+                .get_one::<String>("type")
+                .map(|s| s.as_str())
+                .expect("type is required");
+
+            match validate(chunk_type) {
+                Ok(_) => println!("chunk type is valid"),
+                Err(e) => println!("chunk type is invalid: {}", e),
             }
         }
         _ => panic!("oh shieet"),

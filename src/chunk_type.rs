@@ -45,7 +45,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
             return Ok(chunk_type);
         }
 
-        return Err(String::from("chunk data is invalid"));
+        Err(String::from("chunk type have to be lower or upper case alphabetic"))
     }
 }
 
@@ -53,11 +53,15 @@ impl FromStr for ChunkType {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.len() != 4 {
+            return Err(String::from("chunk type must have 4 bytes"));
+        }
+
         let data: [u8; 4] = s
             .as_bytes()
             .windows(4)
             .next()
-            .ok_or(String::from("expected 4 bytes"))?
+            .ok_or(String::from("chunk type must have 4 bytes"))?
             .try_into()
             .or(Err(String::from("cannot conver &[u8] to [u8;4]")))?;
 
@@ -67,7 +71,7 @@ impl FromStr for ChunkType {
             return Ok(chunk_type);
         }
 
-        Err(String::from("chunk data is invalid"))
+        Err(String::from("chunk type have to be lower or upper case alphabetic"))
     }
 }
 

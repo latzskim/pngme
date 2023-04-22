@@ -11,8 +11,8 @@ pub fn encode(path: &str, chunk_type: &str, chunk_data: &str) -> Result<(), Stri
 
     let p = Path::new(path);
 
-    Ok(fs::write(p.with_file_name("encoded.png"), png.as_bytes())
-        .map_err(|e| format!("write to file {}: {}", path, e))?)
+    fs::write(p.with_file_name("encoded.png"), png.as_bytes())
+        .map_err(|e| format!("write to file {}: {}", path, e))
 }
 
 pub fn decode(path: &str, chunk_type: &str) -> Result<String, String> {
@@ -21,9 +21,16 @@ pub fn decode(path: &str, chunk_type: &str) -> Result<String, String> {
         .chunk_by_type(chunk_type)
         .ok_or("chunk not found".to_string())?;
 
-    Ok(found_chunk
+    found_chunk
         .data_as_string()
-        .map_err(|e| format!("invalid chunk data: {}", e))?)
+        .map_err(|e| format!("invalid chunk data: {}", e))
+}
+
+pub fn validate(chunk_type: &str) -> Result<(), String> {
+    if let Err(e) = ChunkType::from_str(chunk_type) {
+        return Err(format!("invalid chunk_type: {}", e));
+    }
+    Ok(())
 }
 
 fn open_as_png(path: &str) -> Result<Png, String> {

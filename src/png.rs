@@ -99,8 +99,7 @@ impl Png {
         let all_chunks_bytes: Vec<u8> = self
             .chunks()
             .iter()
-            .map(|chunk| chunk.as_bytes())
-            .flatten()
+            .flat_map(|chunk| chunk.as_bytes())
             .collect();
 
         Self::STANDARD_HEADER
@@ -163,7 +162,6 @@ mod tests {
         let png = Png::try_from(bytes.as_ref());
 
         assert!(png.is_ok());
-
     }
 
     #[test]
