@@ -39,6 +39,15 @@ pub fn get_chunks(path: &str) -> Result<Vec<Chunk>, String> {
     Ok(chunks)
 }
 
+pub fn remove_chunk(path: &str, chunk_type: &str) -> Result<(), String> {
+    let mut png = open_as_png(path)?;
+    png.remove_chunk(chunk_type)?;
+
+    let p = Path::new(path);
+    fs::write(p.with_file_name(format!("removed_chunk_{}.png", chunk_type)), png.as_bytes())
+        .map_err(|e| format!("write to file {}: {}", path, e))
+}
+
 fn open_as_png(path: &str) -> Result<Png, String> {
     let png_data = fs::read(path).map_err(|e| format!("open file {}: {}", path, e))?;
     let png = Png::try_from(png_data.as_slice())?;

@@ -1,5 +1,5 @@
 use clap::{Arg, ArgAction, Command};
-use commands::{decode, encode, get_chunks, validate};
+use commands::{decode, encode, get_chunks, validate, remove_chunk};
 
 pub mod chunk;
 pub mod chunk_type;
@@ -44,8 +44,12 @@ fn main() {
                     .help("prints chunk's data as string if it's valid UTF-8 message, otherwise it prints data as bytes")
                     .short('d')
                     .action(ArgAction::SetTrue)
-            ),
-
+            )
+        )
+        .subcommand(
+            Command::new("remove").about("removes chunk from png")
+                .arg(Arg::new("path").required(true).help("path to png file"))
+                .arg(Arg::new("type").required(true).help("chunk type to be removed"))
         )
         .get_matches();
 
@@ -120,6 +124,24 @@ fn main() {
                     }
                 }
                 Err(e) => println!("failed to get chunk list: {}", e),
+            }
+        }
+        Some(("remove", remove_matches)) => {
+            let path = remove_matches
+                .get_one::<String>("path")
+                .map(|s| s.as_str())
+                .expect("path is required");
+
+
+            let chunk_type = remove_matches
+                .get_one::<String>("type")
+                .map(|s| s.as_str())
+                .expect("type is required");
+
+            if let Err(e) = remove_chunk(path, chunk_type) {
+                println!("failed to remove chunk: {}", e)
+            } else {
+                println!("chunk has been removed")
             }
         }
         _ => panic!("oh shieet"),

@@ -65,7 +65,7 @@ impl Png {
         self.chunks.push(chunk);
     }
 
-    fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk, String> {
+    pub fn remove_chunk(&mut self, chunk_type: &str) -> Result<Chunk, String> {
         let given_chunk_type = ChunkType::from_str(chunk_type)?;
 
         let pos_idx = self
