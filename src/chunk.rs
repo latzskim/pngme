@@ -17,7 +17,7 @@ fn calc_crc(chunk_type_bytes: [u8; 4], chunk_data_bytes: &[u8]) -> u32 {
 pub const CRC_32_ISO: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Chunk {
     chunk_type: ChunkType,
     chunk_data: Vec<u8>,

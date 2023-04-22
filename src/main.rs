@@ -1,5 +1,5 @@
-use clap::{Arg, Command};
-use commands::{decode, encode, validate};
+use clap::{Arg, ArgAction, Command};
+use commands::{decode, encode, get_chunks, validate};
 
 pub mod chunk;
 pub mod chunk_type;
@@ -31,11 +31,21 @@ fn main() {
                 ),
         )
         .subcommand(
-            Command::new("validate").about("validate chunk type").arg(
+            Command::new("validate").about("validates chunk type").arg(
                 Arg::new("type")
                     .required(true)
                     .help("chunk type to check its validity"),
+            )
+        )
+        .subcommand(
+            Command::new("chunks").about("prints list of chunk types")
+                .arg(Arg::new("path").required(true).help("path to png file"))
+                .arg(Arg::new("with-data")
+                    .help("prints chunk's data as string if it's valid UTF-8 message, otherwise it prints data as bytes")
+                    .short('d')
+                    .action(ArgAction::SetTrue)
             ),
+
         )
         .get_matches();
 
@@ -72,11 +82,8 @@ fn main() {
                 .expect("type is required");
 
             match decode(path, chunk_type) {
-                Ok(decoded_message) => println!(
-                    "decoded message from chunk {}: {}",
-                    chunk_type, decoded_message
-                ),
-                Err(e) => println!("failed to decode file {}: {}", path, e),
+                Ok(decoded_message) => println!("{}", decoded_message),
+                Err(e) => println!("failed to decode message: {}", e),
             }
         }
         Some(("validate", validate_matches)) => {
@@ -88,6 +95,31 @@ fn main() {
             match validate(chunk_type) {
                 Ok(_) => println!("chunk type is valid"),
                 Err(e) => println!("chunk type is invalid: {}", e),
+            }
+        }
+        Some(("chunks", chunks_matches)) => {
+            let path = chunks_matches
+                .get_one::<String>("path")
+                .map(|s| s.as_str())
+                .expect("path is required");
+
+            match get_chunks(path) {
+                Ok(chunks) => {
+                    let print_data = chunks_matches.get_flag("with-data");
+                    for chunk in chunks {
+                        let mut output = format!("{}", chunk.chunk_type());
+                        if print_data {
+                            match chunk.data_as_string() {
+                                Ok(chunk_data_str) => {
+                                    output = format!("{}: {}", output, chunk_data_str)
+                                }
+                                Err(_) => output = format!("{}: {:?}", output, chunk.data()),
+                            }
+                        }
+                        println!("{}", output);
+                    }
+                }
+                Err(e) => println!("failed to get chunk list: {}", e),
             }
         }
         _ => panic!("oh shieet"),

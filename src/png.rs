@@ -81,8 +81,8 @@ impl Png {
         Self::STANDARD_HEADER
     }
 
-    fn chunks(&self) -> &[Chunk] {
-        self.chunks.as_ref()
+    pub fn chunks(&self) -> Vec<&Chunk> {
+        self.chunks.iter().collect()
     }
 
     pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {

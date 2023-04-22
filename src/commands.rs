@@ -33,6 +33,12 @@ pub fn validate(chunk_type: &str) -> Result<(), String> {
     Ok(())
 }
 
+pub fn get_chunks(path: &str) -> Result<Vec<Chunk>, String> {
+    let png = open_as_png(path)?;
+    let chunks = png.chunks().iter().map(|c| (**c).clone()).collect();
+    Ok(chunks)
+}
+
 fn open_as_png(path: &str) -> Result<Png, String> {
     let png_data = fs::read(path).map_err(|e| format!("open file {}: {}", path, e))?;
     let png = Png::try_from(png_data.as_slice())?;

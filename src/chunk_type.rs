@@ -1,6 +1,6 @@
 use std::{fmt::Display, str::FromStr};
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ChunkType {
     data: [u8; 4],
 }
@@ -45,7 +45,9 @@ impl TryFrom<[u8; 4]> for ChunkType {
             return Ok(chunk_type);
         }
 
-        Err(String::from("chunk type have to be lower or upper case alphabetic"))
+        Err(String::from(
+            "chunk type have to be lower or upper case alphabetic",
+        ))
     }
 }
 
@@ -71,7 +73,9 @@ impl FromStr for ChunkType {
             return Ok(chunk_type);
         }
 
-        Err(String::from("chunk type have to be lower or upper case alphabetic"))
+        Err(String::from(
+            "chunk type have to be lower or upper case alphabetic",
+        ))
     }
 }
 
