@@ -26,7 +26,6 @@ impl TryFrom<&[u8]> for Png {
         let mut chunks = Vec::new();
         let mut len_buf: [u8; 4] = Default::default();
         while let Ok(()) = reader.read_exact(&mut len_buf) {
-            // TODO: length should be helper func?
             let length = u32::from_be_bytes(len_buf);
             let remain_len = (length + 4 + 4) as usize;
             let mut chunk_remainging_bytes = vec![0u8; remain_len];

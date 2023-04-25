@@ -67,19 +67,12 @@ impl Chunk {
     }
 }
 
-// TODO: Refactor
 impl TryFrom<&[u8]> for Chunk {
     type Error = String;
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-        let len_be_bytes: &[u8] = value[0..4].try_into().or(Err("read length bytes"))?;
-        let length = u32::from_be_bytes(
-            len_be_bytes
-                .try_into()
-                .or(Err("length u32 from_be_bytes"))?,
-        );
-
-        let chunk_bytes: [u8; 4] = value[4..8].try_into().or(Err("read chunk bytes"))?;
+        let length = u32::from_be_bytes(value[0..4].try_into().unwrap());
+        let chunk_bytes: [u8; 4] = value[4..8].try_into().unwrap();
         let chunk_type = ChunkType::try_from(chunk_bytes).or(Err("create ChunkType from bytes"))?;
 
         let chunk_data = Vec::from(&value[8..(length + 8) as usize]);
@@ -93,11 +86,7 @@ impl TryFrom<&[u8]> for Chunk {
             return Err(String::from("corrupted crc!"));
         }
 
-        Ok(Chunk {
-            chunk_type,
-            chunk_data,
-            crc_iso,
-        })
+        Ok(Chunk { chunk_type, chunk_data, crc_iso })
     }
 }
 
